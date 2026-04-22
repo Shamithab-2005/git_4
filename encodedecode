@@ -1,0 +1,35 @@
+from PIL import Image
+
+def stego(img, msg=None, out=None):
+    p = list(Image.open(img).getdata())
+
+    # ---------- ENCODE ----------
+    if msg:
+        bits = ''.join(format(ord(c),'08b') for c in msg+"###")
+        i = 0
+        new = []
+
+        for px in p:
+            r, g, b = px[:3]     # works for RGB & RGBA
+            if i < len(bits): r = (r & ~1) | int(bits[i]); i+=1
+            if i < len(bits): g = (g & ~1) | int(bits[i]); i+=1
+            if i < len(bits): b = (b & ~1) | int(bits[i]); i+=1
+            new.append((r, g, b))
+
+        img2 = Image.open(img).convert("RGB")
+        img2.putdata(new)
+        img2.save(out)
+        print("Encoded")
+
+    # ---------- DECODE ----------
+    else:
+        bits = ''.join(str(c & 1) for px in p for c in px[:3])
+        msg = ""
+
+        for i in range(0, len(bits), 8):
+            msg += chr(int(bits[i:i+8], 2))
+            if "###" in msg:
+                print("Message:", msg.replace("###", ""))
+                break
+stego("spidy.png", "with great powers comes greate responsibility", "spiderman.png")
+stego("spiderman.png")
