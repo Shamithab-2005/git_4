@@ -1,0 +1,150 @@
+p1.
+(a)
+open badstore
+login as admin' -- 
+change in addressbar -> login to admin
+change dropdown to select current users
+click do it
+copy password of joe@supplier.com
+right click on password select google for search
+select MD5 
+do reverse for password
+you can able to see password
+
+come back to badstore
+click what's new on left side
+add 1 item in cart
+click view cart
+go to inspect 
+storage 
+open cookies section copy card id value
+go to new tab open urldecoder.org
+put value in this and decode 
+decode is the output for that
+
+
+(b)HxDriver drowsiness detection
+Wireshark 
+python -m scapy
+from scapy.all import *
+packet = Ether()/IP(dst="8.8.8.8")/TCP()
+packet.show()
+sendp(packet) 
+
+Normal
+scapy
+from scapy.all import * 
+packet=IP()/TCP()
+e_pack=Ether()/packet
+e_pack.show()
+
+
+(c)
+sudo nano port_scan.sh
+write program :
+#!/bin/bash
+host="www.example.com" 
+read -p "Enter the starting port number: " start_port
+read -p "Enter the ending port number: " end_port
+for (( port=start_port; port<=end_port; port++ ))
+do
+    echo "Scanning port $port..."
+    nc -zv -w1 "$host" "$port" 2>&1
+done
+
+save with ctyrl + s
+ctrl +x to exit
+sudo chmod +x port_scan.sh
+./port_scan.sh
+
+after that enter starting port number : 22
+ending port number is: 80
+when succeed show the output
+
+p2:
+
+(a)
+open badstore
+open firefox search address of badstore
+go to login -> 
+name : joe@supplier.com
+password: iforgot
+click login
+got to left side prevoius order -> open it
+type -> ctrl +f 
+type 46.95 in left botton search
+write the card used values for all 46.95 values in the output.
+
+(b)Normal
+ scapy
+from scapy.all import *
+>>> packet=sniff(count=10)
+>>> packet.summary()
+>>> for i in range(10):
+	print(packet[i].show())
+
+Wireshark 
+python -m scapy 
+from scapy.all import * 
+packet = Ether()/IP(dst=“8.8.8.8”)/TCP()
+sendp(packet, count=10, inter=1)
+(c)
+nc -vlp 1234
+nc localhost 1234
+
+p3.
+
+(a)
+sudo scapy
+>>> from scapy.all import *
+>>> result,_ = traceroute(["www.example.com","www.google.com"], maxttl=20)
+>>> result.show()
+
+
+(b)
+nc example.com 80
+HEAD / HTTP/1.1
+HOST: example.com
+
+nc example.com 80
+GET / HTTP/1.1
+HOST: example.com
+
+(c)
+open zenmap in windows
+type in command section
+>> nmap -sn google.com   (for ping scan)
+>>nmap -sn ip address   (for single scan)
+
+p4.
+(a)
+open command prompt in window 
+>> scapy
+
+then write this below code 
+
+from scapy.all import *
+
+# 1. Define the target
+target_subnet = "192.168.1.0/24"
+
+# 2. Send the ARP request and collect answers
+answered, unanswered = srp(Ether(dst="ff:ff:ff:ff:ff:ff")/ARP(pdst=target_subnet), timeout=2, verbose=False)
+
+# 3. Print the results
+for sent, received in answered:
+    print(f"Host Up: {received.psrc} MAC: {received.hwsrc}")
+
+(b)
+>> nc -l -p 5000
+go to browser firefox and search -> localhost:5000
+come back to terminal
+>> HTTP/1.1 200 OK
+>> Content-Type- text/plain
+hello world
+ctrl+c
+got to browser see that msz.
+
+(c)
+nmap 192.168.1.101-120   (for range scan)
+nmap 192.168.1.0/24  (for subnetting)
