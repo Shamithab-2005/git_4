@@ -1,283 +1,249 @@
-p5.
-(a)
-open badstore 
-click what's new add item to cart
-go to search left side
-<script>alert(document.cookie)</script>
-enter -> ouput is card id
+18)Docker Image Push to Docker Hub
 
-(b)
-sudo nano port_scan.sh
+Create a folder (example: Docker-Java)
+Create file: Grade.java
 
-#!/bin/bash
-host="www.example.com"
-read -p "Enter starting port: " start_port
-read -p "Enter ending port: " end_port
+public class Grade {
+    static char gradeFunction(double avg) {
+        if (avg >= 90) return 'A';
+        else if (avg >= 80) return 'B';
+        else if (avg >= 70) return 'C';
+        else if (avg >= 60) return 'D';
+        else return 'F';
+    }
+    public static void main(String[] args) {
+        double avg = 85;
+        System.out.println("Average: " + avg);
+        System.out.println("Grade: " + gradeFunction(avg));
+    }
+}
 
-for (( port=start_port; port<=end_port; port++ ))
-do
-    echo "Scanning port $port..."
-    nc -zv -w1 "$host" "$port" 2>&1
-done
+Create file: Dockerfile
+FROM eclipse-temurin:17-jdk
+WORKDIR /app
+COPY . .
+RUN javac Grade.java
+CMD ["java", "Grade"]
 
-ctrl+x 
+Open Command Prompt
 
-sudo chmod +x port_scan.sh
-./port_scan.sh
+cd Desktop
+cd Docker-Java
+docker build -t java-app .
+docker run java-app
+docker login
+docker tag java-app yourusername/java-app:v1
+docker push yourusername/java-app:v1
 
-enter starting port number: 22
-enter ending port number: 80
+(19)Jenkins and Docker Integration
 
-(c)
-nmap 192.168.56.1
-nmap www.google.com
+Open Jenkins → http://localhost:8080
+Login
+Click New Item
+Enter name: docker-job
+Select Freestyle Project → OK
+Scroll to General
+(Optional) Add description
+Scroll to Source Code Management
+Select Git
+Paste your repo URL (repo must contain Dockerfile + Java file)
+Branch:
+*/main
+Scroll to Build Triggers
+Select Poll SCM
+Schedule:
+* * * * *
+Scroll to Build → Add Build Step → Execute Windows batch command
+Write:
+docker build -t java-app .
+docker run -d -p 5001:5000 java-app
+Click Save
+Click Build Now
+Click Console Output to verify
+Open Docker Desktop → check image created
+Open browser:
+http://localhost:5001
+📁 Required files in GitHub repo
 
-nmap -sV 192.168.56.1
-nmap -sV www.google.com
+Dockerfile
 
+FROM eclipse-temurin:17-jdk
+WORKDIR /app
+COPY . .
+RUN javac Grade.java
+CMD ["java", "Grade"]
 
-p6.
+Grade.java
 
-(a)
-open badstore 
-click what's new add item to cart
-go to search left side
-<script>alert(document.cookie)</script>
-enter -> ouput is card id
+public class Grade {
+    static char gradeFunction(double avg) {
+        if (avg >= 90) return 'A';
+        else if (avg >= 80) return 'B';
+        else if (avg >= 70) return 'C';
+        else if (avg >= 60) return 'D';
+        else return 'F';
+    }
+    public static void main(String[] args) {
+        double avg = 85;
+        System.out.println("Average: " + avg);
+        System.out.println("Grade: " + gradeFunction(avg));
+    }
+}
 
-(b)
-nmap -O 192.168.56.1
-nmap -O bnmit.org
+(20)Simple End-to-End CI/CD Pipeline
 
-nmap -A 192.168.56.1
-nmap -A google.com
+🔹 Step 1: Create Maven Web Project
+Open Command Prompt
+Run:
+mvn archetype:generate
+Choose:
+3 → org.apache.maven.archetypes:maven-archetype-webapp
+Enter:
+GroupId: com.demo
+ArtifactId: webapp
+Version: 1.0-SNAPSHOT
+Package: com.demo
+🔹 Step 2: Add Java Folder (IMPORTANT)
 
-(c)
-open badstore
-admin login
-search -> inspect -> remove maxlength
-then search -> xx' IN (itemnum,sdesc,ldesc) union select email,passwd,123,123 from userdb LIMIT 2 -- 
-copy admin password and right click and search for google 
-open MD5 -> reverse -> below you can able to see password for that
+By default Maven webapp does NOT create java folder
 
-come back at badstore -> now login with admin with using password secret
-go to address bar change -> login -> admin
-in drop down menu select add user
-click do it
-inspect that page from blank area
-ctrl + f
-search hidden in inspect part
-you can able to see the hidden password field
-this is the output to show ..
+So create manually:
 
-p7.
-(a)
-open cmd in windows
->> scapy
->>from scapy.all import *
->>packet=IP(dst="8.8.8.8")/ICMP()
->>send(packet)
+webapp/src/main/java/com/demo/
+🔹 Step 3: Add Servlet Code
 
-open wireshark 
-stop
-search icmp
+Create file:
 
-(b)
-go to browser and open wikipdedia image in new tab and copyimage link
-open terminal
->> nc -l -p 5000
+HelloServlet.java
 
-go to browser firefox and search -> localhost:5000
+Paste:
 
-come back to terminal
+package com.demo;
+import java.io.*;
+import javax.servlet.*;
+import javax.servlet.http.*;
 
->> HTTP/1.1 200 OK
->> Content-Type- text/html; charset=UTF-8
->> server: nooblinux
+public class HelloServlet extends HttpServlet {
+    public void doGet(HttpServletRequest req, HttpServletResponse res) throws IOException {
+        res.getWriter().println("CI/CD OK");
+    }
+}
+🔹 Step 4: Update index.jsp
 
-<!doctype html>
-<title>bnm</title>
-<h1>cars</h1>
-<img src="copy link">
+Path:
 
-(c)
-open badstore
-login joe@supplier.com in login/register section
-search left side -> x
-copy sql query till itemdb
-paste it in search left side-> add : x' union (paste query) -- 
-open inspect of searchbar
-remove maxlength
-again write in searchbar -> x' union SELECT count(itemnum), count(itemum), count(itemnum), count(price) FROM itemdb -- 
+src/main/webapp/index.jsp
 
-show the output quantity of table item in cart....
+Code:
 
-p8.
-(a)
-from scapy.all import *
->>> target_ip="192.168.2.31"
->>> ports = [22, 80, 443]
->>> for port in ports:
-...:     packet = IP(dst=target_ip)/TCP(dport=port,flags="S")
-...:     response=sr1(packet,timeout=1,verbose=0)
-...:     if response:
-...:         if response[TCP].flags=="SA":
-...:             print(f"Port {port} is open")
-...:         elif response[TCP].flags=="RA":
-...:             print(f"Port {port} is closed")
+<h1>CI/CD Demo</h1>
+<a href="hello">Run</a>
+🔹 Step 5: Update web.xml
 
-(b)
-nmap --script vuln google.com
-nmap --script vuln 192.168.56.1
-nmap -oN output.txt --script vuln 192.168.56.1
+Path:
 
-(c)
-open badstore 
-login -> admin' -- 
-click login
-select current user -> click do it
-copy joe@supplier.com password 
-right -> search in google -> open first site MD5 one -> check password
+src/main/webapp/WEB-INF/web.xml
 
-come back in badstore -> click supplier login
-name : joe@supplier.com
-password : iforgot ( or which on u got in the MD5)
-show the answer of upload price list
+Add:
 
+<servlet>
+<servlet-name>hello</servlet-name>
+<servlet-class>com.demo.HelloServlet</servlet-class>
+</servlet>
 
-p9.
-(a)
-go to browser and open wikipdedia image in new tab and copyimage link
-open terminal
->> nc -l -p 5000
+<servlet-mapping>
+<servlet-name>hello</servlet-name>
+<url-pattern>/hello</url-pattern>
+</servlet-mapping>
+🔹 Step 6: Update pom.xml
 
-go to browser firefox and search -> localhost:5000
+Add dependency:
 
-come back to terminal
+<dependency>
+<groupId>javax.servlet</groupId>
+<artifactId>javax.servlet-api</artifactId>
+<version>4.0.1</version>
+<scope>provided</scope>
+</dependency>
 
->> HTTP/1.1 200 OK
->> Content-Type- text/html; charset=UTF-8
->> server: nooblinux
+Also ensure:
 
-<!doctype html>
-<title>bnm</title>
-<h1>cars</h1>
-<img src="copy link">
+<packaging>war</packaging>
+🔹 Step 7: Build Project
+mvn clean package
 
-(b)
-nmap 192.168.1.101-120   (for range scan)
-nmap 192.168.1.0/24  (for subnetting)
+✔ WAR file will be created inside:
 
-(c)
-open badstore
-open firefox search address of badstore
-go to login -> 
-name : joe@supplier.com
-password: iforgot
-click login
-got to left side prevoius order -> open it
-type -> ctrl +f 
-type 46.95 in left botton search
-write the card used values for all 46.95 values in the output.
+target/webapp.war
+🔹 Step 8: Create Dockerfile
 
-p10.
-(a)
-from scapy.all import *
-def packet_callback(packet):
-     if packet[IP].proto==1:
-         print(f"ICMP packet from {packet[IP].src}")
-sniff(prn=packet_callback,filter="icmp",store=0)
+In root folder:
 
-(b)
-nmap 192.168.56.1
-nmap www.google.com
+Dockerfile
+FROM tomcat:9
+COPY target/webapp.war /usr/local/tomcat/webapps/
+🔹 Step 9: Upload to GitHub (DRAG & DROP)
 
-nmap -sV 192.168.56.1
-nmap -sV www.google.com
+Upload these files:
 
-(c)
-open badstore
-as admin login
-go to addressbar and change "login -> admin"
-in drag drop select current users
-click do it
-click ctrl+f
-type in bottom left search -> whole.biz
-and show the name of that ids as output...
+pom.xml
+Dockerfile
+Jenkinsfile
+src/
 
+👉 That’s it (no commands needed)
 
+🔹 Step 10: Jenkins Setup
+Open:
+http://localhost:8080
+Click New Item
+Name:
+exp20
+Select:
+Pipeline
+Choose:
+Pipeline script from SCM
+Select Git
+Paste repo link
+Branch: main
+Script path:
+Jenkinsfile
+Save
+🔹 Step 11: Jenkinsfile (YOUR WORKING CODE)
+pipeline {
+    agent any
 
-p11.
-(a)
-open command prompt in window 
->> scapy
+    stages {
 
-then write this below code 
+        stage('Build') {
+            steps {
+                bat 'mvn clean package'
+            }
+        }
 
-from scapy.all import *
+        stage('Docker') {
+            steps {
+                bat 'docker build -t webapp .'
+                bat 'docker run -d -p 8087:8080 webapp'
+            }
+        }
+    }
+}
+🔹 Step 12: Run Pipeline
 
-# 1. Define the target
-target_subnet = "192.168.1.0/24"
+Click:
 
-# 2. Send the ARP request and collect answers
-answered, unanswered = srp(Ether(dst="ff:ff:ff:ff:ff:ff")/ARP(pdst=target_subnet), timeout=2, verbose=False)
+Build Now
+🔹 Step 13: Output
 
-# 3. Print the results
-for sent, received in answered:
-    print(f"Host Up: {received.psrc} MAC: {received.hwsrc}")
+Open browser:
 
-(b)
-go to browser and open wikipdedia image in new tab and copyimage link
-open terminal
->> nc -l -p 5000
+http://localhost:8087/webapp
 
-go to browser firefox and search -> localhost:5000
+Click:
 
-come back to terminal
+Run
 
->> HTTP/1.1 200 OK
->> Content-Type- text/html; charset=UTF-8
->> server: nooblinux
+✔ Output:
 
-<!doctype html>
-<title>bnm</title>
-<h1>cars</h1>
-<img src="copy link">
-
-(c)
-open badstore and login as admin or supplier 
-then search left side searchbar -> <script>alert(document.cookie)</script>
-show the output as cartid and value of that.
-
-
-p12.
-(a)
-sudo scapy
->>> from scapy.all import *
->>> result,_ = traceroute(["www.example.com","www.google.com"], maxttl=20)
->>> result.show()
-
-(b)
-go to browser and open wikipdedia image in new tab and copyimage link
-open terminal
->> nc -l -p 5000
-
-go to browser firefox and search -> localhost:5000
-
-come back to terminal
-
->> HTTP/1.1 200 OK
->> Content-Type- text/html; charset=UTF-8
->> server: nooblinux
-
-<!doctype html>
-<title>bnm</title>
-<h1>cars</h1>
-<img src="copy link">
-
-(c)
-open badstore 
-click what's new add item to cart
-go to search left side
-<script>alert(document.cookie)</script>
-enter -> ouput is card id
+CI/CD OK
